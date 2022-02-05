@@ -31,18 +31,9 @@ function Ball({ x, setCount }) {
   //     state.api.reset()
   //   },
   // }))
-	const [hovered, setHover] = useState(false)
-  useEffect(() => void (document.body.style.cursor = hovered ? "pointer" : "auto"), [hovered])
-  const onClick = useCallback(() => {
-    setCount((toggle) => toggle + 1);
-  }, [setCount])
-  const onPointerOver = useCallback(() => setHover(true), [])
-  const onPointerOut = useCallback(() => setHover(false), [])
-	const rZ = x.to([0, 1], [0, -Math.PI * 5]);
-  const rX = x.to([0, 1], [0, Math.PI * 5]);
   return (
-    <a.mesh castShadow ref={ref} rotation-y={rX} rotation-x={rZ} onClick={onClick} onPointerOver={onPointerOver} onPointerOut={onPointerOut}>
-      <a.sphereGeometry args={[0.5, 64, 64]} />
+    <mesh castShadow ref={ref}>
+      <sphereGeometry args={[0.5, 64, 64]} />
       <meshPhysicalMaterial
 				map={base}
 				bumpMap={bump}
@@ -52,7 +43,7 @@ function Ball({ x, setCount }) {
 				roughnessMap={rough}
 				glassMap={glass}
 			/>
-    </a.mesh>
+    </mesh>
   )
 }
 
@@ -67,8 +58,6 @@ function Plane(props) {
 }
 
 export default function PhysicsBall() {
-	const [count, setCount] = useState(0);
-	const [{ x }] = useSpring({ x: count, config: { mass: 20, tension: 400, friction: 600, precision: 0.0001 } }, [count])
   return (
     <Canvas shadows camera={{ position: [0, 5, 12], fov: 50 }}>
 			<OrbitControls />
@@ -92,11 +81,7 @@ export default function PhysicsBall() {
           <planeGeometry args={[1000, 1000]} />
           <meshPhongMaterial color="#374037" />
         </mesh>
-				{/* <mesh receiveShadow>
-          <planeGeometry  rotation={[-Math.PI / 2, 0, -Math.PI / 2]} position={[0, 0, 0]} scale={[200, 40, 1]} />
-          <meshPhongMaterial color="#374037" />
-        </mesh> */}
-        {<Ball x={x} setCount={setCount}/>}
+        <Ball />
 				<Plane />
       </Physics>
     </Canvas>
