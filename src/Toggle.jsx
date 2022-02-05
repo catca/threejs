@@ -40,24 +40,27 @@ function Sphere({ x, set }) {
   const onPointerOver = useCallback(() => setHover(true), [])
   const onPointerOut = useCallback(() => setHover(false), [])
   // Interpolations
-  const pZ = x.to([0, 1], [0, 5])
-  const rX = x.to([0, 1], [0, -Math.PI * 3])
+  const pX = x.to([0, 1], [0, 30]);
+  const pZ = x.to([0, 1], [0, 30]);
+  const rZ = x.to([0, 1], [0, -Math.PI * 5]);
+  const rX = x.to([0, 1], [0, Math.PI * 5]);
   // const color = x.to([0, 1], ["#888", "#2a2a2a"])
 
   useFrame((state, delta) => {
     console.log(sphereRef.current.position.x);
     const step = 4;
     state.camera.fov = THREE.MathUtils.damp(state.camera.fov, 0, step, delta)
-    damp(state.camera.position, [sphereRef.current.position.x, 1, 30], step, delta)
-    state.camera.lookAt(sphereRef.current.position.x, 0, 0)
+    damp(state.camera.position, [sphereRef.current.position.x, 15, sphereRef.current.position.z + 30], step, delta)
+    state.camera.lookAt(sphereRef.current.position.x, 0, sphereRef.current.position.z);
     state.camera.updateProjectionMatrix()
   });
 
   return (
     <group scale={[1.25, 1.25, 1.25]} dispose={null}>
       <a.mesh receiveShadow castShadow material-color={"#888"} material-roughness={0.5} material-metalness={0.8} />
-      <a.group ref={sphereRef} position-y={0.85} position-x={pZ}>
-        <a.mesh  receiveShadow castShadow raycast={meshBounds} rotation-z={rX} onClick={onClick} onPointerOver={onPointerOver} onPointerOut={onPointerOut}>
+      {/* <a.group ref={sphereRef} position-y={0.85} position-x={pX} position-z={pZ}> */}
+      <a.group ref={sphereRef} position-y={0.85} >
+        <a.mesh  receiveShadow castShadow raycast={meshBounds} rotation-y={rX} rotation-x={rZ} onClick={onClick} onPointerOver={onPointerOver} onPointerOut={onPointerOut}>
           <sphereGeometry args={[0.8, 64, 64]} />
           <a.meshPhysicalMaterial
             map={base}
@@ -96,10 +99,8 @@ export function Scene({ x, set }) {
       {/* <a.spotLight color={"#7fffd4"} position={[10, 20, 20]} angle={0.1} intensity={2} shadow-mapSize-width={2048} shadow-mapSize-height={2048} shadow-bias={-0.00001} castShadow /> */}
       <Suspense fallback={null}>
         <Physics gravity={[0, -50, 0]} defaultContactMaterial={{ restitution: 0.5 }}>
-          <group position={[0, 0, -10]}>
             <Sphere x={x} set={set} />
-            <Plane color="#FF0000" rotation={[-Math.PI / 2, 0, -Math.PI / 2]} position={[10, -0.4, 0]} scale={[4, 40, 1]} />
-          </group>
+            <Plane color="#FF0000" rotation={[-Math.PI / 2, 0, -Math.PI / 2]} position={[18, -30, 0]} scale={[200, 40, 1]} />
         </Physics>
       </Suspense>
       <mesh receiveShadow renderOrder={1000} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
