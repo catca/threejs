@@ -41,12 +41,12 @@ function SkyBox() {
   const loader = new CubeTextureLoader();
   // The CubeTextureLoader load method takes an array of urls representing all 6 sides of the cube.
   const texture = loader.load([
-    "./img/1.jpg",
-    "./img/2.jpg",
-    "./img/3.jpg",
-    "./img/4.jpg",
-    "./img/5.jpg",
-    "./img/6.jpg"
+    "img/1.jpg",
+    "img/2.jpg",
+    "img/3.jpg",
+    "img/4.jpg",
+    "img/5.jpg",
+    "img/6.jpg"
   ]);
 
   // Set the scene background property to the resulting texture.
@@ -73,13 +73,12 @@ function Sphere() {
 
   return (
     <mesh visible position={[0, 0, 0]} rotation={[0, 0, 0]} castShadow>
-      <directionalLight intensity={0.5} />
+      <directionalLight intensity={50} />
       <sphereGeometry attach="geometry" args={[2, 32, 32]} />
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         attach="material"
         envMap={cubeCamera.renderTarget.texture}
-        color="#FF0000"
-        roughness={0.1}
+        roughness={0}
         metalness={1}
       />
     </mesh>

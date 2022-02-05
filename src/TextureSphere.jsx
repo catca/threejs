@@ -9,7 +9,7 @@ const Sphere = () => {
   const repeatX = 3;
   const repeatY = 2;
 
-  const [base, bump, normal, ao, metal, rough, glass] = useLoader(
+  const [base, bump, normal, ao, rough] = useLoader(
     // THREE.TextureLoader,
     // [
     //   "img/metal/metal1_basecolor.jpg",
@@ -19,19 +19,27 @@ const Sphere = () => {
     //   "img/metal/metal1_metallic.jpg",
     //   "img/metal/metal1_roughness.jpg"
     // ]
+    // THREE.TextureLoader,
+    // [
+    //   "img/stained/Glass_Stained_001_basecolor.jpg",
+    //   "img/stained/Glass_Stained_001_height.png",
+    //   "img/stained/Glass_Stained_001_normal.jpg",
+    //   "img/stained/Glass_Stained_001_ambientOcclusion.jpg",
+    //   "img/stained/Glass_Stained_001_metallic.jpg",
+    //   "img/stained/Glass_Stained_001_roughness.jpg",
+    //   "img/stained/Glass_Stained_001_Glass.jpg",
+    // ]
     THREE.TextureLoader,
     [
-      "img/stained/Glass_Stained_001_basecolor.jpg",
-      "img/stained/Glass_Stained_001_height.png",
-      "img/stained/Glass_Stained_001_normal.jpg",
-      "img/stained/Glass_Stained_001_ambientOcclusion.jpg",
-      "img/stained/Glass_Stained_001_metallic.jpg",
-      "img/stained/Glass_Stained_001_roughness.jpg",
-      "img/stained/Glass_Stained_001_Glass.jpg",
+      "img/watermelon/Watermelon_001_basecolor.jpg",
+      "img/watermelon/Watermelon_001_height.png",
+      "img/watermelon/Watermelon_001_normal.jpg",
+      "img/watermelon/Watermelon_001_ambientOcclusion.jpg",
+      "img/watermelon/Watermelon_001_roughness.jpg",
     ]
   );
 
-  [base, bump, normal, ao, metal, rough, glass].forEach((texture) => {
+  [base, bump, normal, ao, rough].forEach((texture) => {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(repeatX, repeatY);
@@ -50,9 +58,8 @@ const Sphere = () => {
         bumpMap={bump}
         aoMap={ao}
         normalMap={normal}
-        metalnessMap={metal}
         roughnessMap={rough}
-        glass={glass}
+        glass={1}
       />
     </mesh>
   );
