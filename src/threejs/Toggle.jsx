@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import * as THREE from "three";
+import { Euler } from "three";
 import { Canvas, useLoader, useFrame } from "@react-three/fiber";
 import { Shadow, meshBounds, RoundedBox, OrbitControls } from "@react-three/drei";
 import { Physics } from "@react-three/cannon";
@@ -42,8 +43,8 @@ function Sphere({ x, set }) {
   // Interpolations
   const pX = x.to([0, 1], [0, 30]);
   const pZ = x.to([0, 1], [0, 30]);
-  const rZ = x.to([0, 1], [0, -Math.PI * 5]);
-  const rX = x.to([0, 1], [0, Math.PI * 5]);
+  // const rZ = x.to([0, 1], [0, -Math.PI * 5]);
+  // const rX = x.to([0, 1], [0, Math.PI * 5]);
   // const color = x.to([0, 1], ["#888", "#2a2a2a"])
 
   useFrame((state, delta) => {
@@ -58,9 +59,9 @@ function Sphere({ x, set }) {
   return (
     <group scale={[1.25, 1.25, 1.25]} dispose={null}>
       <a.mesh receiveShadow castShadow material-color={"#888"} material-roughness={0.5} material-metalness={0.8} />
-      {/* <a.group ref={sphereRef} position-y={0.85} position-x={pX} position-z={pZ}> */}
-      <a.group ref={sphereRef} position-y={0.85} >
-        <a.mesh  receiveShadow castShadow raycast={meshBounds} rotation-y={rX} rotation-x={rZ} onClick={onClick} onPointerOver={onPointerOver} onPointerOut={onPointerOut}>
+      <a.group ref={sphereRef} position-y={0.85} position-x={pX} position-z={pZ}>
+      {/* <a.group ref={sphereRef} position-y={0.85} > */}
+        <a.mesh  receiveShadow castShadow raycast={meshBounds} rotation={new Euler(sphereRef.current?.position.x, 0, sphereRef.current?.position.z)} onClick={onClick} onPointerOver={onPointerOver} onPointerOut={onPointerOut}>
           <sphereGeometry args={[0.8, 64, 64]} />
           <a.meshPhysicalMaterial
             map={base}
