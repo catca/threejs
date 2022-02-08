@@ -65,6 +65,8 @@ const Sphere = () => {
   );
 };
 
+const stars = new Array(1000);
+
 const TextureSphere = () => {
   return (
     <Canvas>
@@ -73,7 +75,14 @@ const TextureSphere = () => {
       <pointLight position={[2, -10, 0]} intensity={3} />
       <ambientLight />
       <Suspense fallback={null}>
-        <Sphere />
+        {stars.map((props, index) => {
+          return (
+            <mesh key={index} position={[Math.random() * 10, Math.random() * 10, Math.random() * 10]}>
+              <tetrahedronGeometry args={[2, 0]}/>
+              <meshPhongMaterial color={'#000000'}/>
+            </mesh>
+          )
+        })}
       </Suspense>
       <OrbitControls />
       <Stats />
