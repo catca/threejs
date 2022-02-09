@@ -9,7 +9,6 @@ import getUuid from 'uuid-by-string'
 const GOLDENRATIO = 1.61803398875
 const randomPos = (min = 4, max = -4) => Math.random() * (max - min) + min
 
-const pexel = (id) => `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260`
 const images = [
   // Front
   { position: [0, 0, 2], rotation: [0, 0, 0], url: '/img/gallery/portfolio.PNG', intro: 'portfolio', href: 'http://localhost:3000' },
@@ -18,36 +17,28 @@ const images = [
   // Right
   { position: [2.2, 0, 2.2], rotation: [0, -Math.PI / 7, 0], url: '/img/gallery/bunnymarket.PNG', intro: 'bunnymarket', href: 'http://bunnymarket.o-r.kr:3000' },
 ]
-const stars = new Array(1000);
 
 export default function Gallery() {
   const [zoom, setZoom] = useState(false)
   const [focus, setFocus] = useState({})
-  const momentsArray = useMemo(() => Array.from({ length: 100 }, () => ({ color: randomColor(), position: [randomPos(), randomPos(), randomPos()] })), [])
+  const momentsArray = useMemo(() => Array.from({ length: 200 }, () => ({ color: randomColor(), position: [randomPos(), randomPos(), randomPos() + 2], speed: Math.random() * 0.5 + 0.25 })), [])
   return (
     <Suspense fallback={null}>
-      <Canvas shadows >
+      <Canvas shadows>
       {/* <directionalLight color={'#FF0000'} position={[0, 10, 0]} intentsity={1} castShadow/> */}
       <directionalLight color={'#5CFFD1'} position={[0, 10, 0]} intentsity={1} castShadow/>
       <color attach="background" args={['#191920']} />
       {/* <fog attach="fog" args={['#FF0000', 0, 30]} /> */}
       {/* <Environment preset="city" /> */}
-      {/* <pointLight intensity={1} position={[0, 10, 0]} castShadow/> */}
-      <ambientLight intentsity={1}/>
+      <pointLight intensity={1} position={[0, 10, 0]} castShadow decay={0}/>
+      <ambientLight intentsity={10}/>
       <spotLight position={[0, 15, 2]} angle={0.4} penumbra={1} intensity={1} castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-0.0001} />
-      <perspectiveCamera />
+      {/* <perspectiveCamera /> */}
       <group position={[0, -0.5, 0]}>
         <Frames images={images} />
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-          <planeGeometry args={[50, 50, 1]} />
-          <meshPhysicalMaterial
-            // roughness={1}
-            metalness={1}
-            color="#5CFFD1"
-          />
-        </mesh>
       </group>
-      <Cloud momentsData={momentsArray} zoomToView={(focusRef) => (setZoom(!zoom), setFocus(focusRef))} />
+      <Planet />
+      <Cloud momentsData={momentsArray}/>
       </Canvas>
     </Suspense>
   )
@@ -126,44 +117,65 @@ function Frame({ url, c = new THREE.Color(), intro, href, ...props }) {
   )
 }
 
-function Marker({ children, ...props }) {
-  // This holds the visible state
-  const [hidden, set] = useState()
+function Planet() {
+  const planetRef = useRef();
+  const [radius, setRadius] = useState(0);
+  useEffect(() => {
+    const x = planetRef.current.position.x;
+    const z = planetRef.current.position.z;
+    setRadius(Math.sqrt(x * x + (z - 2) * (z - 2)));
+  }, [])
+  useFrame((state) => {
+    if (radius) {
+      const time = state.clock.elapsedTime;
+      const speed = 1.4;
+      planetRef.current.position.x = Math.cos(time * speed) * radius;
+      planetRef.current.position.y = -Math.cos(time * speed) * radius;
+      planetRef.current.position.z = Math.sin(time * speed) * radius + 2;
+      planetRef.current.rotation.x += 0.03 * Math.sin(time * Math.random()) + 0.03;
+      planetRef.current.rotation.y += 0.03 * Math.sin(time * Math.random()) + 0.03;
+      planetRef.current.rotation.z += 0.03 * Math.sin(time * Math.random()) + 0.03;
+    }
+  })
   return (
-    <Html
-      transform
-      occlude
-      // The <Html> component can tell us when something is occluded (or not)
-      onOcclude={set}
-      // We just interpolate the visible state into css opacity and transforms
-      style={{ transition: 'all 0.2s', opacity: hidden ? 0 : 1, transform: `scale(${hidden ? 0.25 : 1})`, color: '#FFFFFF' }}
-      {...props}>
-      {children}
-    </Html>
+    <mesh ref={planetRef} position={[23, -1.3, 2]} receiveShadow>
+      <sphereGeometry args={[0.4, 32, 32]} />
+      <meshPhysicalMaterial
+        roughness={1}
+        metalness={1}
+        color="#0000FF"
+      />
+      <spotLight position={[0, 0, 1]} intensity={1}/>
+    </mesh>
   )
 }
 
-function Cloud({ momentsData, zoomToView }) {
-  return momentsData.map(({ position, color }, i) => (
-    <Tetrahedron key={i} position={position} color={color} index={i} zoomToView={zoomToView} />
+function Cloud({ momentsData}) {
+  return momentsData.map(({ position, speed }, i) => (
+    <Tetrahedron key={i} position={position} speed={speed} index={i}/>
   ))
 }
 
-function Tetrahedron({ position, color, index, zoomToView }) {
+function Tetrahedron({ position, index, speed }) {
   const tetrahedronRef = useRef();
+  const [radius, setRadius] = useState(0);
+  useEffect(() => {
+    const x = tetrahedronRef.current.position.x;
+    const z = tetrahedronRef.current.position.z;
+    setRadius(Math.sqrt(x * x + (z - 2) * (z - 2)));
+  }, [])
   useFrame((state) => {
-    const time = state.clock.elapsedTime;
-    const positionX = tetrahedronRef.current.position.x;
-    const positionZ = tetrahedronRef.current.position.z;
-    const radius = Math.sqrt(positionX * positionX + positionZ * positionZ);
-    tetrahedronRef.current.position.x += 0.01 * Math.sin(time);
-    tetrahedronRef.current.position.z += Math.sqrt(radius * radius - (positionX + 0.01 * Math.sin(time)) * (positionX + 0.01 * Math.sin(time))) - positionZ;
-    tetrahedronRef.current.rotation.x += 0.03 * Math.sin(time * Math.random()) + 0.03;
-    tetrahedronRef.current.rotation.y += 0.03 * Math.sin(time * Math.random()) + 0.03;
-    tetrahedronRef.current.rotation.z += 0.03 * Math.sin(time * Math.random()) + 0.03;
+    if (radius) {
+      const time = state.clock.elapsedTime;
+      tetrahedronRef.current.position.x = Math.cos(time * speed) * radius;
+      tetrahedronRef.current.position.z = Math.sin(time * speed) * radius + 2;
+      tetrahedronRef.current.rotation.x += 0.03 * Math.sin(time * Math.random()) + 0.03;
+      tetrahedronRef.current.rotation.y += 0.03 * Math.sin(time * Math.random()) + 0.03;
+      tetrahedronRef.current.rotation.z += 0.03 * Math.sin(time * Math.random()) + 0.03;
+    }
   })
   return (
-    <mesh castShadow key={index} ref={tetrahedronRef} position={position} onClick={(e) => zoomToView(e.object.position)} rotation={position}>
+    <mesh castShadow key={index} ref={tetrahedronRef} position={position} rotation={position}>
       <tetrahedronGeometry
         attach="geometry"
         args={[0.02, 0]}
